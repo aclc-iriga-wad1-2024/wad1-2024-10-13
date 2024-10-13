@@ -1,6 +1,6 @@
 ## 2024-10-13
 
-### User Sessions using Hashed Password
+### 2. User Sessions using Hashed Password
 
 #### Project Setup
 - Clone this repository into your **htdocs** folder.

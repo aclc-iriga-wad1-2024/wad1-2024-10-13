@@ -1,6 +1,6 @@
 ## 2024-10-13
 
-### User Sessions using Plain Password
+### 1. User Sessions using Plain Password
 
 #### Project Setup
 - Clone this repository into your **htdocs** folder.
