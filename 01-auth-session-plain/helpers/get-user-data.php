@@ -30,4 +30,9 @@ if(isset($_SESSION['example1_user_id']) && isset($conn))
         $user['email']     = $row['email'];
         $user['username']  = $row['username'];
     }
+    else {
+        // force sign-out
+        session_destroy();
+        header('location: sign-in.php');
+    }
 }
