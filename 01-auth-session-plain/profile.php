@@ -197,6 +197,47 @@ if(isset($_POST['update-account']))
     }
 }
 
+
+// Configuration
+$uploadDir = 'img/';
+$allowedExtensions = array('jpg', 'jpeg', 'png', 'gif');
+
+// Check if the form has been submitted
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Check if the file has been uploaded
+    if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] === 0) {
+        // Get the file extension
+        $fileExtension = pathinfo($_FILES['avatar']['name'], PATHINFO_EXTENSION);
+
+        // Check if the file extension is allowed
+        if (in_array($fileExtension, $allowedExtensions)) {
+            // Generate a unique filename
+            $filename = uniqid() . '.' . $fileExtension;
+
+            // Move the uploaded file to the upload directory
+            if (move_uploaded_file($_FILES['avatar']['tmp_name'], $uploadDir . $filename)) {
+                // Update the user's profile picture
+                $success['avatar'] = 'Profile picture uploaded successfully!';
+                $profilePicture = $uploadDir . $filename;
+
+                // Store the uploaded profile picture's path in the database
+                $stmt = $conn->prepare("UPDATE `users` SET `profile_picture` = ? WHERE `id` = ?");
+                $stmt->bind_param("si", $profilePicture, $user['id']);
+                $stmt->execute();
+            } else {
+                $error['avatar'] = 'Failed to upload profile picture!';
+            }
+        } else {
+            $error['avatar'] = 'Invalid file extension!';
+        }
+    } else {
+        $error['avatar'] = 'Failed to upload profile picture!';
+    }
+}
+
+
+
+
 // process update password request when the form is submitted
 if(isset($_POST['update-password']))
 {
@@ -248,7 +289,25 @@ if(isset($_POST['update-password']))
     <!-- content header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div class="d-flex align-items-center gap-3">
-            <h2 class="m-0"><i class="fas fa-fw fa-user-circle"></i> <?= htmlspecialchars($profile['firstname']) ?> <?= htmlspecialchars($profile['lastname']) ?></h2>
+        <?php
+            $stmt = $conn->prepare("SELECT `profile_picture` FROM `users` WHERE `id` = ?");
+            $stmt->bind_param("i", $profile['id']);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $row = $result->fetch_assoc();
+            $profilePicture = $row['profile_picture'];
+
+            if (isset($profilePicture) && !empty($profilePicture)) {
+                ?>
+                <img src="<?= $profilePicture ?>" id="profile-picture" alt="" size="50" height="50" width="50" data-view-component="true" class="avatar circle" style="border-radius: 50%; overflow: hidden; object-fit: cover; width: 80px; height: 80px;">
+                <?php
+            } else {
+                ?>
+                <i class="fas fa-fw fa-user-circle opacity-75"></i>
+                <?php
+            }
+            ?>
+            <span class="firstname-font"><?= htmlspecialchars($profile['firstname']) ?></span><style>.firstname-font {font-family: Arial, sans-serif;font-size: 24px;font-weight: bold;}</style>
         </div>
         <a href="index.php" class="btn btn-outline-dark">
             <i class="fas fa-fw fa-arrow-left"></i> Home
@@ -277,7 +336,25 @@ if(isset($_POST['update-password']))
                     <div class="row">
                         <!-- form header -->
                         <div class="col-12">
-                            <p class="mb-1"><i class="fas fa-fw fa-megaphone"></i> Write a shout-out to <?= htmlspecialchars($profile['firstname']) ?> <?= htmlspecialchars($profile['lastname']) ?>:</p>
+                        <?php
+                            $stmt = $conn->prepare("SELECT `profile_picture` FROM `users` WHERE `id` = ?");
+                            $stmt->bind_param("i", $profile['id']);
+                            $stmt->execute();
+                            $result = $stmt->get_result();
+                            $row = $result->fetch_assoc();
+                            $profilePicture = $row['profile_picture'];
+
+                            if (isset($profilePicture) && !empty($profilePicture)) {
+                                ?>
+                                <img src="<?= $profilePicture ?>" id="profile-picture" alt="" size="32" height="32" width="32" data-view-component="true" class="avatar circle">
+                                <?php
+                            } else {
+                                ?>
+                                <i class="fas fa-fw fa-user-circle opacity-75"></i>
+                                <?php
+                            }
+                            ?>
+                            <?= htmlspecialchars($profile['firstname']) ?> <?= htmlspecialchars($profile['lastname']) ?>
                         </div>
 
                         <!-- message and submit button -->
@@ -319,8 +396,27 @@ if(isset($_POST['update-password']))
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <!-- author (referenced from the $users global array using key 'u-{user_id of this shout-out}') -->
-                                    <h6 class="mb-1 fw-bold">
-                                        <i class="fas fa-fw fa-user-circle opacity-75"></i>
+                                    <h6 class="mb-1 fw-bold">   
+                                        <?php
+                                        // Retrieve the uploaded profile picture's path from the database
+                                        $stmt = $conn->prepare("SELECT `profile_picture` FROM `users` WHERE `id` = ?");
+                                        $stmt->bind_param("i", $shout_out['user_id']);
+                                        $stmt->execute();
+                                        $result = $stmt->get_result();
+                                        $row = $result->fetch_assoc();
+                                        $authorProfilePicture = $row['profile_picture'];
+
+                                        // Display the uploaded profile picture
+                                        if (isset($authorProfilePicture) && !empty($authorProfilePicture)) {
+                                            ?>
+                                            <img src="<?= $authorProfilePicture ?>" id="author-profile-picture" alt="" size="32" height="32" width="32" data-view-component="true" class="avatar circle" style="border-radius: 50%; overflow: hidden; object-fit: cover; width: 32px; height: 32px;">
+                                            <?php
+                                        } else {
+                                            ?>
+                                            <i class="fas fa-fw fa-user-circle opacity-75"></i>
+                                            <?php
+                                        }
+                                        ?>
                                         <a href="profile.php?id=<?= $shout_out['user_id'] ?>" class="text-decoration-none">
                                         <?php
                                         if($shout_out['user_id'] == $user['id'] && isset($_SESSION['example1_user_id'])) {
@@ -495,11 +591,39 @@ if(isset($_POST['update-password']))
                         </div>
                     </div>
                 </div>
+
+                <!-- Profile picture upload -->
+                <div class="col-md-6">
+                    <div class="card mt-3">
+                        <div class="card-header bg-secondary text-light fw-bold">Upload Profile</div>
+                        <div class="card-body">
+                            <?php if (isset($success['avatar'])): ?>
+                                <img src="<?php echo isset($profilePicture) ? $profilePicture : 'img/noprofil.jpg'; ?>" id="profile-picture" alt="" size="32" height="32" width="32" data-view-component="true" class="avatar circle"><br>
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <i class="fas fa-fw fa-check-circle"></i> <?= htmlspecialchars($success['avatar']) ?>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+
+                            <?php elseif (isset($error['avatar'])): ?>
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="fas fa-fw fa-exclamation-circle"></i> <?= htmlspecialchars($error['avatar']) ?>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                            <?php endif; ?>
+                            <form method="POST" action="profile.php?id=<?= $user['id'] ?>&tab=settings" enctype="multipart/form-data">
+                                <div class="form-group">
+                                    <label for="avatar">Upload Profile Picture</label>
+                                    <input type="file" name="avatar" accept="image/*" class="form-control">
+                                    <small class="form-text text-muted">Supported formats: JPG, JPEG, PNG. Max size: 2MB</small><br>
+                                    <button type="submit" name="update-avatar" class="btn btn-dark">Upload Profile Picture</button>          
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
         <?php } ?>
     </div>
 </main>
-
-
 <!-- html bottom -->
 <?php require_once 'partials/html-2-bot.php'; ?>
