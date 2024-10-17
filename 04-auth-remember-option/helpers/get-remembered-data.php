@@ -2,6 +2,7 @@
 /**
  * Auth with Remember Option using Hashed Password on Database [Example 4]
  * get-remembered-data: Helper to get remembered data, if no session is set.
+ *                      (assumes session has already been initialized)
  */
 
 if(!isset($_SESSION['example4_username']) || !isset($_SESSION['example4_password']))
