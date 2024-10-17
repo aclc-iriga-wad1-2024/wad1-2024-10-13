@@ -1,6 +1,6 @@
 <?php
 /**
- * Auth on cookie using Hashed Password on Database [Example 3]
+ * Auth on Cookie using Hashed Password on Database [Example 3]
  * sign-up: Sign up page
  */
 

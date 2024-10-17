@@ -1,6 +1,6 @@
 <?php
 /**
- * Auth on cookie using Hashed Password on Database [Example 3]
+ * Auth on Cookie using Hashed Password on Database [Example 3]
  * get-all-shout-outs: Helper to get all shout-outs.
  *                (assumes cookie and database connection are already been initialized)
  */
