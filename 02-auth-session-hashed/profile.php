@@ -54,7 +54,7 @@ if(isset($_GET['tab'])) {
         $tab = $_GET['tab'];
 }
 // only authenticated user should have access to 'settings' tab
-if($tab == 'settings' && (!isset($_SESSION['example2_username']) || !isset($_SESSION['example2_password']) || $profile['username'] !== $_SESSION['example2_username']) || $profile['password'] !== $_SESSION['example2_password']) {
+if($tab == 'settings' && (!isset($_SESSION['example2_username']) || !isset($_SESSION['example2_password']) || $profile['username'] !== $_SESSION['example2_username'] || $profile['password'] !== $_SESSION['example2_password'])) {
     $tab = 'received';
 }
 
