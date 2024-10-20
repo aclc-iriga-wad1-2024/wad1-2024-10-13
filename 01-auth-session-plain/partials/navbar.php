@@ -45,6 +45,9 @@
                             </button>
                             <ul class="dropdown-menu">
                                 <li>
+                                    <a href="profile.php?id=<?= $user['id'] ?>&tab=settings" class="btn btn-link btn-sm dropdown-item"><i class="fas fa-fw fa-cog"></i> Settings</a>
+                                </li>
+                                <li>
                                     <!-- sign out button -->
                                     <form method="POST" action="sign-out.php" onsubmit="return confirm('Are you sure you want to sign out?');">
                                         <button type="submit" name="sign-out" class="btn btn-link btn-sm text-danger dropdown-item"><i class="fas fa-fw fa-power-off"></i> Sign out</button>
