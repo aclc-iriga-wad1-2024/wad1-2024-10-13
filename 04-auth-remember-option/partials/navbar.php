@@ -37,10 +37,16 @@
                     <!-- user dropdown when a user is signed-in -->
                     <li class="nav-item">
                         <div class="btn-group">
-                            <button type="button" class="btn btn-link bg-dark text-light opacity-75 text-decoration-none dropdown-toggle" data-bs-toggle="dropdown">
-                                <i class="fas fa-fw fa-user-circle"></i> <?= htmlspecialchars($user['firstname']) ?>
+                            <button type="button" class="btn btn-link bg-dark text-light opacity-75 text-decoration-none dropdown-toggle py-0 d-flex align-items-center gap-2" data-bs-toggle="dropdown">
+                                <div class="user-avatar user-avatar-sm">
+                                    <img src="uploads/avatars/<?= $user['avatar'] ?>">
+                                </div>
+                                <?= htmlspecialchars($user['firstname']) ?>
                             </button>
                             <ul class="dropdown-menu">
+                                <li>
+                                    <a href="profile.php?id=<?= $user['id'] ?>&tab=settings" class="btn btn-link btn-sm dropdown-item"><i class="fas fa-fw fa-cog"></i> Settings</a>
+                                </li>
                                 <li>
                                     <!-- sign out button -->
                                     <form method="POST" action="sign-out.php" onsubmit="return confirm('Are you sure you want to sign out?');">

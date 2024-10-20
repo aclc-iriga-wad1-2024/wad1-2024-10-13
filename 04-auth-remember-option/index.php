@@ -189,15 +189,19 @@ if(isset($_POST['delete-shout-out']) && isset($_SESSION['example4_username']) &&
                         <div class="d-flex justify-content-between align-items-center">
                             <!-- author (referenced from the $users global array using key 'u-{user_id of this shout-out}') -->
                             <h6 class="mb-1 fw-bold">
-                                <i class="fas fa-fw fa-user-circle opacity-75"></i>
-                                <a href="profile.php?id=<?= $shout_out['user_id'] ?>" class="text-decoration-none">
-                                <?php
-                                if($shout_out['user_id'] == $user['id'] && isset($_SESSION['example4_username']) && isset($_SESSION['example4_password'])) {
-                                    echo "(me) ";
-                                }
-                                ?>
-                                <?= htmlspecialchars($users['u-' . $shout_out['user_id']]['firstname']) ?>
-                                <?= htmlspecialchars($users['u-' . $shout_out['user_id']]['lastname']) ?>
+                                <a href="profile.php?id=<?= $shout_out['user_id'] ?>" class="text-decoration-none d-flex align-items-end gap-1">
+                                    <div class="user-avatar user-avatar-xs">
+                                        <img src="uploads/avatars/<?= $users['u-' . $shout_out['user_id']]['avatar'] ?>">
+                                    </div>
+                                    <div>
+                                        <?php
+                                        if($shout_out['user_id'] == $user['id'] && isset($_SESSION['example4_username']) && isset($_SESSION['example4_password'])) {
+                                            echo "(me) ";
+                                        }
+                                        ?>
+                                        <?= htmlspecialchars($users['u-' . $shout_out['user_id']]['firstname']) ?>
+                                        <?= htmlspecialchars($users['u-' . $shout_out['user_id']]['lastname']) ?>
+                                    </div>
                                 </a>
                             </h6>
                             <!-- created date and time -->

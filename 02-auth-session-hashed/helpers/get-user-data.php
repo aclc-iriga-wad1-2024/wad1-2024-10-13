@@ -31,6 +31,7 @@ if(isset($_SESSION['example2_username']) && isset($_SESSION['example2_password']
         $user['email']     = $row['email'];
         $user['username']  = $row['username'];
         $user['password']  = $row['password'];
+        $user['avatar']    = file_exists('uploads/avatars/' . $row['avatar']) ? $row['avatar'] : 'no-avatar.jpg';
     }
     else {
         // force sign-out

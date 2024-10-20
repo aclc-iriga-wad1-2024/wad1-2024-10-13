@@ -35,7 +35,8 @@ if($stmt != null) {
             'lastname'  => $row['lastname'],
             'email'     => $row['email'],
             'username'  => $row['username'],
-            'password'  => $row['password']
+            'password'  => $row['password'],
+            'avatar'    => file_exists('uploads/avatars/' . $row['avatar']) ? $row['avatar'] : 'no-avatar.jpg'
         ];
     }
 }
@@ -60,12 +61,13 @@ if($tab == 'settings' && (!isset($_SESSION['example2_username']) || !isset($_SES
 
 // initialize global data
 $view    = 'profile';
-$title   = htmlspecialchars($profile['firstname']) . ' ' . htmlspecialchars($profile['lastname']);
+$title   = htmlspecialchars($profile['firstname']) . ' ' . htmlspecialchars($profile['lastname']) . ' (' . ucfirst($tab) . ')';
 $message = '';
 $error   = [
     'shoutout' => '',
     'personal' => '',
     'account'  => '',
+    'avatar'   => '',
     'password' => ''
 ];
 
@@ -147,6 +149,64 @@ if(isset($_POST['update-personal']))
         // if update is successful, redirect to self (profile.php) so that [get-user-data.php] can query the updated user again
         if($stmt->affected_rows > 0) {
             header('location: profile.php?id=' . $user['id'] . '&tab=settings');
+        }
+    }
+}
+
+// process update avatar request when the form is submitted
+if(isset($_POST['update-avatar']))
+{
+    // validate submitted file
+    if(!isset($_FILES['avatar'])) {
+        $error['avatar'] = 'No file submitted.';
+    }
+    else {
+        // get the submitted file
+        $file = $_FILES['avatar'];
+
+        // check for upload errors
+        if($file['error'] != UPLOAD_ERR_OK) {
+            $error['avatar'] = "An error occurred during the upload.";
+        }
+
+        // no upload errors
+        else {
+            // validate the MIME type and file extension to ensure the uploaded file is a JPEG or PNG
+            $file_mime_type = $file['type'];
+            $file_extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+            if(!in_array($file_mime_type, ['image/jpeg', 'image/jpg', 'image/png']) || !in_array($file_extension, ['jpeg', 'jpg', 'png'])) {
+                $error['avatar'] = "Invalid file type: only JPG, JPEG, and PNG files are allowed.";
+            }
+
+            // if file is valid, proceed with the upload
+            else {
+                // create upload directory if it does not exist
+                $upload_dir = 'uploads/avatars';
+                if(!is_dir($upload_dir)) {
+                    mkdir($upload_dir);
+                }
+
+                // delete current user avatar if it's not 'no-avatar.jpg'
+                if(!empty($user['avatar']) && $user['avatar'] !== 'no-avatar.jpg') {
+                    $previous_avatar = $upload_dir . '/' . $user['avatar'];
+                    if(file_exists($previous_avatar))
+                        unlink($previous_avatar);
+                }
+
+                // make new filename unique
+                $new_filename = $user['username'] . '-' . time() . '.' . $file_extension;
+
+                // move and save the uploaded file
+                move_uploaded_file($file['tmp_name'], $upload_dir . '/' . $new_filename);
+
+                // update user avatar in database
+                $stmt = $conn->prepare("UPDATE `users` SET `avatar` = ? WHERE `id` = ?");
+                $stmt->bind_param("si", $new_filename, $user['id']);
+                $stmt->execute();
+
+                // redirect to self (profile.php) so that [get-user-data.php] can query the updated user again
+                header('location: profile.php?id=' . $user['id'] . '&tab=settings');
+            }
         }
     }
 }
@@ -250,8 +310,11 @@ if(isset($_POST['update-password']))
 <main class="container pt-3">
     <!-- content header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <div class="d-flex align-items-center gap-3">
-            <h2 class="m-0"><i class="fas fa-fw fa-user-circle"></i> <?= htmlspecialchars($profile['firstname']) ?> <?= htmlspecialchars($profile['lastname']) ?></h2>
+        <div class="d-flex align-items-end gap-2">
+            <div class="user-avatar">
+                <img src="uploads/avatars/<?= $profile['avatar'] ?>">
+            </div>
+            <h2 class="m-0"><?= htmlspecialchars($profile['firstname']) ?> <?= htmlspecialchars($profile['lastname']) ?></h2>
         </div>
         <a href="index.php" class="btn btn-outline-dark">
             <i class="fas fa-fw fa-arrow-left"></i> Home
@@ -323,15 +386,19 @@ if(isset($_POST['update-password']))
                                 <div class="d-flex justify-content-between align-items-center">
                                     <!-- author (referenced from the $users global array using key 'u-{user_id of this shout-out}') -->
                                     <h6 class="mb-1 fw-bold">
-                                        <i class="fas fa-fw fa-user-circle opacity-75"></i>
-                                        <a href="profile.php?id=<?= $shout_out['user_id'] ?>" class="text-decoration-none">
-                                        <?php
-                                        if($shout_out['user_id'] == $user['id'] && isset($_SESSION['example2_username']) && isset($_SESSION['example2_password'])) {
-                                            echo "(me) ";
-                                        }
-                                        ?>
-                                        <?= htmlspecialchars($users['u-' . $shout_out['user_id']]['firstname']) ?>
-                                        <?= htmlspecialchars($users['u-' . $shout_out['user_id']]['lastname']) ?>
+                                        <a href="profile.php?id=<?= $shout_out['user_id'] ?>" class="text-decoration-none d-flex align-items-end gap-1">
+                                            <div class="user-avatar user-avatar-xs">
+                                                <img src="uploads/avatars/<?= $users['u-' . $shout_out['user_id']]['avatar'] ?>">
+                                            </div>
+                                            <div>
+                                                <?php
+                                                if($shout_out['user_id'] == $user['id'] && isset($_SESSION['example2_username']) && isset($_SESSION['example2_password'])) {
+                                                    echo "(me) ";
+                                                }
+                                                ?>
+                                                <?= htmlspecialchars($users['u-' . $shout_out['user_id']]['firstname']) ?>
+                                                <?= htmlspecialchars($users['u-' . $shout_out['user_id']]['lastname']) ?>
+                                            </div>
                                         </a>
                                     </h6>
                                     <!-- created date and time -->
@@ -386,10 +453,10 @@ if(isset($_POST['update-password']))
             <!-- settings panel -->
             <div class="p-3 row">
                 <!-- personal information -->
-                <div class="col-md-6">
-                    <div class="card mt-3">
+                <div class="col-md-6 pb-3">
+                    <div class="card mt-3 h-100">
                         <div class="card-header bg-secondary text-light fw-bold">Personal Information</div>
-                        <div class="card-body">
+                        <div class="card-body position-relative pb-5">
                             <form method="POST" action="profile.php?id=<?= $user['id'] ?>&tab=settings">
                                 <div class="row">
                                     <!-- firstname -->
@@ -411,7 +478,7 @@ if(isset($_POST['update-password']))
                                 <?php } ?>
 
                                 <!-- update personal information button -->
-                                <div class="d-flex justify-content-end">
+                                <div class="position-absolute bottom-0 pe-3 pb-3" style="right: 0">
                                     <button type="submit" name="update-personal" class="btn btn-dark">Update</button>
                                 </div>
                             </form>
@@ -419,11 +486,43 @@ if(isset($_POST['update-password']))
                     </div>
                 </div>
 
+                <!-- avatar -->
+                <div class="col-md-6 pb-3">
+                    <div class="card mt-3 h-100">
+                        <div class="card-header bg-secondary text-light fw-bold">Avatar</div>
+                        <div class="card-body position-relative pb-5">
+                            <form method="POST" action="profile.php?id=<?= $user['id'] ?>&tab=settings" enctype="multipart/form-data">
+                                <!-- current avatar display -->
+                                <div class="mb-3 d-flex justify-content-start">
+                                    <label for="avatar" class="user-avatar user-avatar-xl" style="cursor: pointer">
+                                        <img src="uploads/avatars/<?= $user['avatar'] ?>">
+                                    </label>
+                                </div>
+
+                                <!-- file input -->
+                                <div class="mb-3">
+                                    <input class="form-control" type="file" id="avatar" name="avatar" accept=".jpg, .jpeg, .png" required>
+                                </div>
+
+                                <!-- error message (if there's any) -->
+                                <?php if($error['avatar'] != '') { ?>
+                                    <p class="text-danger"><i class="fas fa-fw fa-exclamation-circle"></i> <?= $error['avatar'] ?></p>
+                                <?php } ?>
+
+                                <!-- update avatar button -->
+                                <div class="position-absolute bottom-0 pe-3 pb-3" style="right: 0">
+                                    <button type="submit" name="update-avatar" class="btn btn-dark">Upload</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- account information -->
-                <div class="col-md-6">
-                    <div class="card mt-3">
+                <div class="col-md-6 pb-3">
+                    <div class="card mt-3 h-100">
                         <div class="card-header bg-secondary text-light fw-bold">Account Information</div>
-                        <div class="card-body">
+                        <div class="card-body position-relative pb-5">
                             <form method="POST" action="profile.php?id=<?= $user['id'] ?>&tab=settings">
                                 <div class="row">
                                     <!-- email -->
@@ -445,7 +544,7 @@ if(isset($_POST['update-password']))
                                 <?php } ?>
 
                                 <!-- update account information button -->
-                                <div class="d-flex justify-content-end">
+                                <div class="position-absolute bottom-0 pe-3 pb-3" style="right: 0">
                                     <button type="submit" name="update-account" class="btn btn-dark">Update</button>
                                 </div>
                             </form>
@@ -454,10 +553,10 @@ if(isset($_POST['update-password']))
                 </div>
 
                 <!-- password -->
-                <div class="col-md-12">
-                    <div class="card mt-3">
+                <div class="col-md-6 pb-3">
+                    <div class="card mt-3 h-100">
                         <div class="card-header bg-secondary text-light fw-bold">Password</div>
-                        <div class="card-body">
+                        <div class="card-body position-relative pb-5">
                             <?php if(isset($_POST['update-password']) && $error['password'] == '') { ?>
                                 <div class="alert alert-success alert-dismissible fade show" role="alert">
                                     <i class="fas fa-fw fa-check-circle"></i> Password successfully updated!
@@ -467,20 +566,20 @@ if(isset($_POST['update-password']))
                             <form method="POST" action="profile.php?id=<?= $user['id'] ?>&tab=settings">
                                 <div class="row">
                                     <!-- old password -->
-                                    <div class="col-md-4 mb-3">
+                                    <div class="col-md-12 mb-3">
                                         <label for="old_password" class="form-label">Old Password</label>
                                         <input type="password" class="form-control" id="old_password" name="old_password" required>
                                     </div>
 
                                     <!-- new password -->
-                                    <div class="col-md-4 mb-3">
+                                    <div class="col-md-6 mb-3">
                                         <label for="new_password1" class="form-label">New Password</label>
                                         <input type="password" class="form-control" id="new_password1" name="new_password1" required>
                                     </div>
 
                                     <!-- retype new password -->
-                                    <div class="col-md-4 mb-3">
-                                        <label for="new_password2" class="form-label">Confirm New Password</label>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="new_password2" class="form-label">Confirm Password</label>
                                         <input type="password" class="form-control" id="new_password2" name="new_password2" required>
                                     </div>
                                 </div>
@@ -491,7 +590,7 @@ if(isset($_POST['update-password']))
                                 <?php } ?>
 
                                 <!-- update password button -->
-                                <div class="d-flex justify-content-end">
+                                <div class="position-absolute bottom-0 pe-3 pb-3" style="right: 0">
                                     <button type="submit" name="update-password" class="btn btn-dark">Change Password</button>
                                 </div>
                             </form>

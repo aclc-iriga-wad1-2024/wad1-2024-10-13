@@ -2,3 +2,9 @@
 .vscode
 01-auth-session-plain/uploads/avatars/*
 !01-auth-session-plain/uploads/avatars/no-avatar.jpg
+02-auth-session-hashed/uploads/avatars/*
+!02-auth-session-hashed/uploads/avatars/no-avatar.jpg
+03-auth-cookie-hashed/uploads/avatars/*
+!03-auth-cookie-hashed/uploads/avatars/no-avatar.jpg
+04-auth-remember-option/uploads/avatars/*
+!04-auth-remember-option/uploads/avatars/no-avatar.jpg
