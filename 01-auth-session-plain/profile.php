@@ -388,7 +388,7 @@ if(isset($_POST['update-password']))
                                                 <img src="uploads/avatars/<?= $users['u-' . $shout_out['user_id']]['avatar'] ?>">
                                             </div>
                                             <div>
-                                            <?php
+                                                <?php
                                                 if($shout_out['user_id'] == $user['id'] && isset($_SESSION['example1_user_id'])) {
                                                     echo "(me) ";
                                                 }
