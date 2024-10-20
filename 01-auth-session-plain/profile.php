@@ -58,7 +58,7 @@ if($tab == 'settings' && (!isset($_SESSION['example1_user_id']) || $profile['id'
 
 // initialize global data
 $view    = 'profile';
-$title   = htmlspecialchars($profile['firstname']) . ' ' . htmlspecialchars($profile['lastname']);
+$title   = htmlspecialchars($profile['firstname']) . ' ' . htmlspecialchars($profile['lastname']) . ' (' . ucfirst($tab) . ')';
 $message = '';
 $error   = [
     'shoutout' => '',
