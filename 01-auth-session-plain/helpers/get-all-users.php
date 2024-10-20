@@ -21,7 +21,8 @@ if(isset($conn))
             'firstname' => $row['firstname'],
             'lastname'  => $row['lastname'],
             'email'     => $row['email'],
-            'username'  => $row['username']
+            'username'  => $row['username'],
+            'avatar'    => file_exists('uploads/avatars/' . $row['avatar']) ? $row['avatar'] : 'no-avatar.jpg'
         ];
     }
 }

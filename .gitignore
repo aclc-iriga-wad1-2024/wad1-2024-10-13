@@ -1,2 +1,4 @@
 .idea
 .vscode
+01-auth-session-plain/uploads/avatars/*
+!01-auth-session-plain/uploads/avatars/no-avatar.jpg
