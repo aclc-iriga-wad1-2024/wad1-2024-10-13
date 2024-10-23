@@ -365,7 +365,8 @@ if(isset($_POST['update-password']))
             <!-- shout-out list -->
             <div class="p-3">
                 <?php
-                require_once 'helpers/get-all-shout-outs.php';
+                require_once 'helpers/get_all_shout_outs.php';
+                $shout_outs = get_all_shout_outs();
                 if(empty($shout_outs)) {
                 ?>
                     <p class="text-danger">No shout-outs found.</p>

@@ -165,7 +165,8 @@ if(isset($_POST['delete-shout-out']) && isset($_SESSION['example2_username']) &&
     <!-- shout-out list -->
     <div>
         <?php
-        require_once 'helpers/get-all-shout-outs.php';
+        require_once 'helpers/get_all_shout_outs.php';
+        $shout_outs = get_all_shout_outs();
         if(empty($shout_outs)) {
         ?>
             <p class="text-danger">No shout-outs found.</p>
