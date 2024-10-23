@@ -17,7 +17,7 @@ if(isset($_SESSION['example1_user_id']))
 
 
 // set database connection
-require_once 'config/database.php';
+require_once __DIR__ . '/config/database.php';
 if(!isset($conn)) exit();
 
 // initialize global data
@@ -55,9 +55,9 @@ if(isset($_POST['sign-in']))
 ?>
 
 <!-- html top -->
-<?php require_once 'partials/html-1-top.php'; ?>
+<?php require_once __DIR__ . '/partials/html-1-top.php'; ?>
 <!-- navbar -->
-<?php require_once 'partials/navbar.php'; ?>
+<?php require_once __DIR__ . '/partials/navbar.php'; ?>
 
 
 <!-- main content -->
@@ -110,4 +110,4 @@ if(isset($_POST['sign-in']))
 
 
 <!-- html bottom -->
-<?php require_once 'partials/html-2-bot.php'; ?>
+<?php require_once __DIR__ . '/partials/html-2-bot.php'; ?>

@@ -9,7 +9,7 @@ session_start();
 
 
 // set database connection
-require_once 'config/database.php';
+require_once __DIR__ . '/config/database.php';
 if(!isset($conn)) exit();
 
 // initialize global data
@@ -24,9 +24,9 @@ $error         = [
 ];
 
 // helpers
-require_once 'helpers/get_user_data.php';
+require_once __DIR__ . '/helpers/get_user_data.php';
 $user = get_user_data();
-require_once 'helpers/get_all_users.php';
+require_once __DIR__ . '/helpers/get_all_users.php';
 $users = get_all_users();
 
 
@@ -89,9 +89,9 @@ if(isset($_POST['delete-shout-out']) && isset($_SESSION['example1_user_id']))
 ?>
 
 <!-- html top -->
-<?php require_once 'partials/html-1-top.php'; ?>
+<?php require_once __DIR__ . '/partials/html-1-top.php'; ?>
 <!-- navbar -->
-<?php require_once 'partials/navbar.php'; ?>
+<?php require_once __DIR__ . '/partials/navbar.php'; ?>
 
 
 <!-- main content -->
@@ -165,7 +165,7 @@ if(isset($_POST['delete-shout-out']) && isset($_SESSION['example1_user_id']))
     <!-- shout-out list -->
     <div>
         <?php
-        require_once 'helpers/get_all_shout_outs.php';
+        require_once __DIR__ . '/helpers/get_all_shout_outs.php';
         $shout_outs = get_all_shout_outs();
         if(empty($shout_outs)) {
         ?>
@@ -252,4 +252,4 @@ if(isset($_POST['delete-shout-out']) && isset($_SESSION['example1_user_id']))
 
 
 <!-- html bottom -->
-<?php require_once 'partials/html-2-bot.php'; ?>
+<?php require_once __DIR__ . '/partials/html-2-bot.php'; ?>
