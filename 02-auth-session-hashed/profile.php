@@ -72,9 +72,8 @@ $error   = [
 ];
 
 // helpers
-require_once 'helpers/get-user-data.php';
-if(!isset($user))
-    exit();
+require_once 'helpers/get_user_data.php';
+$user = get_user_data();
 require_once 'helpers/get-all-users.php';
 if(!isset($users))
     exit();
@@ -146,7 +145,7 @@ if(isset($_POST['update-personal']))
         $stmt = $conn->prepare("UPDATE `users` SET `firstname` = ?, `lastname` = ? WHERE `id` = ?");
         $stmt->bind_param("ssi", $firstname, $lastname, $user['id']);
         $stmt->execute();
-        // if update is successful, redirect to self (profile.php) so that [get-user-data.php] can query the updated user again
+        // if update is successful, redirect to self (profile.php) so that [get_user_data.php] can query the updated user again
         if($stmt->affected_rows > 0) {
             header('location: profile.php?id=' . $user['id'] . '&tab=settings');
         }
@@ -204,7 +203,7 @@ if(isset($_POST['update-avatar']))
                 $stmt->bind_param("si", $new_filename, $user['id']);
                 $stmt->execute();
 
-                // redirect to self (profile.php) so that [get-user-data.php] can query the updated user again
+                // redirect to self (profile.php) so that [get_user_data.php] can query the updated user again
                 header('location: profile.php?id=' . $user['id'] . '&tab=settings');
             }
         }
@@ -253,7 +252,7 @@ if(isset($_POST['update-account']))
         $stmt = $conn->prepare("UPDATE `users` SET `email` = ?, `username` = ? WHERE `id` = ?");
         $stmt->bind_param("ssi", $email, $username, $user['id']);
         $stmt->execute();
-        // if update is successful, redirect to self (profile.php) so that [get-user-data.php] can query the updated user again
+        // if update is successful, redirect to self (profile.php) so that [get_user_data.php] can query the updated user again
         if($stmt->affected_rows > 0) {
             // update username in session
             $_SESSION['example2_username'] = $username;
