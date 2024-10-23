@@ -26,9 +26,8 @@ $error         = [
 // helpers
 require_once 'helpers/get_user_data.php';
 $user = get_user_data();
-require_once 'helpers/get-all-users.php';
-if(!isset($users))
-    exit();
+require_once 'helpers/get_all_users.php';
+$users = get_all_users();
 
 
 // process new shout-out submission
