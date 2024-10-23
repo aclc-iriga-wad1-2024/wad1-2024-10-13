@@ -7,8 +7,9 @@
 // initialize session
 session_start();
 
-// get remembered data
-require_once 'helpers/get-remembered-data.php';
+// remember data
+require_once 'helpers/remember_data.php';
+remember_data();
 
 // check for session and redirect to homepage if 'example4_username' and 'example4_password' session already exists
 if(isset($_SESSION['example4_username']) && isset($_SESSION['example4_password']))

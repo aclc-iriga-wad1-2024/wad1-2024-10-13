@@ -8,8 +8,9 @@
 session_start();
 
 
-// get remembered data
-require_once 'helpers/get-remembered-data.php';
+// remember data
+require_once 'helpers/remember_data.php';
+remember_data();
 
 // set database connection
 require_once 'config/database.php';
